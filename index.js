@@ -7,9 +7,6 @@ const app = express();
 //import routes
 const authRoutes = require('./src/routes/auth');
 const adminRoutes = require('./src/routes/admin');
-// const categoryRoutes = require('../src/routes/category');
-// const productRoutes = require('../src/routes/product');
-// const cartRoutes = require('../src/routes/cart');
 
 //Environment variables
 env.config();
@@ -35,9 +32,6 @@ app.use(bodyParser.json());
 
 app.use('/api', authRoutes);
 app.use('/api', adminRoutes);
-// app.use('/api', categoryRoutes);
-// app.use('/api', productRoutes);
-// app.use('/api', cartRoutes);
 
 app.listen(process.env.PORT, () => {
     console.log(`Server is running on port ${process.env.PORT}`)
