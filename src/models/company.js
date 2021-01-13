@@ -11,7 +11,7 @@ const companySchema = new mongoose.Schema({
         required: true,
         trim: true,
         unique: true,
-        lowercase: true
+        uppercase: true
     },
     headquarter: {
         type: String,

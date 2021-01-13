@@ -2,19 +2,10 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
-    firstName: {
+    name: {
         type: String,
         required: true,
-        trim: true,
-        min: 3,
-        max: 30
-    },
-    lastName: {
-        type: String,
-        required: true,
-        trim: true,
-        min: 3,
-        max: 30
+        trim: true
     },
     email: {
         type: String,
@@ -56,11 +47,6 @@ const userSchema = new mongoose.Schema({
 userSchema.virtual('password')
 .set(function(password) {
     this.hash_password = bcrypt.hashSync(password, 10);
-});
-
-userSchema.virtual('fullName')
-.get(function() {
-    return `${this.firstName} ${this.lastName}`;
 });
 
 userSchema.methods = {

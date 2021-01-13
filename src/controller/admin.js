@@ -10,10 +10,12 @@ exports.createUser = (req, res) => {
             });
         }
         const {
-            firstName,
-            lastName,
+            name,
             email,
             password,
+            phone,
+            company_id,
+            reporting_to
         } = req.body;
         User.find({})
         .exec((error, users) => {
@@ -24,12 +26,14 @@ exports.createUser = (req, res) => {
                 }) 
             } else {
                 const _user = new User({ 
-                    firstName, 
-                    lastName, 
+                    name,
                     email, 
                     password,
                     role: 'user',
-                    employee_id: users.length + 1
+                    employee_id: users.length + 1,
+                    phone,
+                    company_id,
+                    reporting_to
                 });
         
                 _user.save((error, data) => {
@@ -39,7 +43,8 @@ exports.createUser = (req, res) => {
                         })
                     } else {
                         return res.status(400).json({
-                            message: 'Something went wrong'
+                            message: 'Something went wrong',
+                            error
                         })
                     }
                 })
@@ -128,9 +133,43 @@ exports.updateCompany = (req, res) => {
                 if(_company) return res.status(201).json({ message: 'Company Updates Successfully' });
             })
         } else {
-            res.status(400).json({
+            return res.status(400).json({
                 message: 'Company Not exist'
             });
         }
     })
+}
+
+exports.getSubordinates = (req, res) => {
+    User.findById(req.params.userId)
+    .exec((error, user) => {
+        if(error) return res.status(400).json({ error });
+        if(user) {
+            const subordinatePromise = User.find({ reporting_to: user._id });
+            const reportingPromise = User.find({ _id: user.reporting_to });
+            Promise.all([subordinatePromise, reportingPromise])
+            .then(([subordinates, reportingTo]) => {
+                return res.status(200).json({ subordinates, reportingTo });
+            }).catch((err) => {
+                return res.status(400).json({ message: err });
+            })
+        } else return res.status(400).json({ message: 'User does not exist' });
+    })
+}
+
+exports.searchEmployee = (req, res) => {
+    const { type, value } = req.query;
+    if(type === 'name') {
+        User.find({ name: { $regex: value, $options: '$m' } })
+        .exec((error, user) => {
+            if(error) return res.status(400).json({ error });
+            if(user) return res.status(200).json({ user });
+        })
+    } else {
+        User.find({ $or: [{phone: value}, {employee_id: value}] })
+        .exec((error, user) => {
+            if(error) return res.status(400).json({ error });
+            if(user) return res.status(200).json({ user });
+        })
+    }
 }

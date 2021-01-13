@@ -11,10 +11,10 @@ exports.signup = (req, res) => {
         }
 
         const {
-            firstName,
-            lastName,
+            name,
             email,
             password,
+            phone
         } = req.body;
 
         User.find({})
@@ -26,12 +26,12 @@ exports.signup = (req, res) => {
                 }) 
             } else {
                 const _user = new User({ 
-                    firstName, 
-                    lastName, 
+                    name, 
                     email, 
                     password,
                     role: 'admin',
-                    employee_id: users.length + 1
+                    employee_id: users.length + 1,
+                    phone
                 });
         
                 _user.save((error, data) => {
@@ -63,11 +63,11 @@ exports.signin = (req, res) => {
         } 
         if(user) {
             if(user.authenticate(password) && user.role === 'admin') {
-                const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-                const { _id, firstName, lastName, email, role, fullName } = user;
+                const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '24h' });
+                const { _id, name, email, role, fullName } = user;
                 res.status(200).json({
                     token,
-                    user: { _id, firstName, lastName, email, role, fullName },
+                    user: { _id, name, email, role, fullName },
                     message: 'LoggedIn Successfully'
                 })
             } else {
